@@ -11,8 +11,9 @@ struct EmptyStateView: View {
                     .font(.system(.title3, design: .rounded).weight(.bold))
                 Spacer()
             }
-            .padding(.horizontal, 22)
-            .padding(.top, 30)
+            .padding(.leading, 84)
+            .padding(.trailing, 22)
+            .padding(.top, 8)
 
             Spacer()
 

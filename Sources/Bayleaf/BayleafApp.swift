@@ -1,4 +1,5 @@
 import AppKit
+import Sparkle
 import SwiftUI
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
@@ -12,6 +13,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 struct BayleafApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @StateObject private var model = AppModel.shared
+    // Sparkle. Constructed once with the App and starts its scheduled checker.
+    // Headless CLI runs never construct BayleafApp, so the updater stays inert there.
+    private let updaterController = SPUStandardUpdaterController(
+        startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
 
     var body: some Scene {
         Window("Bayleaf", id: "main") {
@@ -24,6 +29,9 @@ struct BayleafApp: App {
         .windowStyle(.hiddenTitleBar)
         .defaultSize(width: 1180, height: 760)
         .commands {
+            CommandGroup(after: .appInfo) {
+                Button("Check for Updates…") { updaterController.checkForUpdates(nil) }
+            }
             CommandGroup(replacing: .newItem) {
                 Button("Open PDF…") { AppModel.shared.openPanel() }
                     .keyboardShortcut("o", modifiers: .command)

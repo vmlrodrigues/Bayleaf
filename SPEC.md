@@ -122,7 +122,7 @@ folder picker to change; auto-unique on collision.
   button (⌘E).
 - **Toasts**: success with **Reveal** (selects the file in Finder), failure, info.
   Auto-dismiss 6s.
-- **Menu**: ⌘O open, ⌘E extract, ⇧⌘A select all pages, clear selection.
+- **Menu**: ⌘O open, ⌘E extract, ⇧⌘A select all pages, clear selection, Check for Updates.
 - Drag & drop accepts a PDF over any state. Finder "Open With → Bayleaf" works
   (CFBundleDocumentTypes, rank Alternate — never steals Preview's default).
 - Deliberate: dark-only visual identity for the prototype (`preferredColorScheme(.dark)`).
@@ -163,6 +163,11 @@ eager/static stand-ins — ImageRenderer can't drive either).
   assessment at the end.
 - `Scripts/make-icon.swift` — programmatic icon (page + bay leaf on deep green),
   all ten iconset sizes re-drawn, ClawBar-style.
+- **Sparkle 2 auto-updates** (from 0.1.1): appcast.xml lives in this public repo,
+  served raw from GitHub; DMGs are release assets. EdDSA key in the login keychain
+  (account "Bayleaf"); `Scripts/appcast.sh` signs the DMG and updates the feed,
+  carrying over ClawBar's full set of release guards (clean tree, VERSION at HEAD,
+  BUILD = commit count, HEAD pushed) — each one paid for by a real ClawBar mishap.
 
 ## Requirements — a decision, not an accident
 

@@ -54,8 +54,11 @@ struct MainView: View {
                 .font(.system(size: 11))
                 .foregroundStyle(Theme.dimText.opacity(0.8))
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 30)
-        .padding(.bottom, 12)
+        // Inline with the traffic lights (hidden title bar): the brand row shares
+        // their strip instead of stacking a second band beneath it.
+        .padding(.leading, 84)
+        .padding(.trailing, 20)
+        .padding(.top, 8)
+        .padding(.bottom, 8)
     }
 }

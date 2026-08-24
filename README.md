@@ -18,7 +18,7 @@ or extract ever leaves the machine.
 
 Drop a PDF on the window, pick pages any way you like, and Bayleaf writes a new PDF
 with just those pages — a sensible filename already suggested, never overwriting
-anything. Signed with a Developer ID and notarised by Apple, so Gatekeeper stays quiet.
+anything. Signed with a Developer ID, notarised by Apple, and it keeps itself up to date via Sparkle.
 
 ## Three ways to pick pages
 

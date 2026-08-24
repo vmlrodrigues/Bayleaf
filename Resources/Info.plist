@@ -50,5 +50,17 @@
 			</array>
 		</dict>
 	</array>
+	<!-- Sparkle. SUFeedURL must point at a PUBLICLY readable appcast; the source repo
+	     is public, so it hosts the appcast directly (ClawBar pattern). The DMGs are
+	     GitHub release assets, not committed files. Changing this after anyone
+	     installs orphans them from updates. -->
+	<key>SUFeedURL</key>
+	<string>https://raw.githubusercontent.com/vmlrodrigues/Bayleaf/main/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>40PuR8W1jlajlGWyyQqt4DbQrVfF0gdkvpimz79tSPA=</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
 </dict>
 </plist>
