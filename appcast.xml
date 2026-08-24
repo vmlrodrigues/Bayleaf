@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+  <channel>
+    <title>ClawBar</title>
+    <item>
+      <title>0.1.1</title>
+      <link>https://github.com/vmlrodrigues/Bayleaf/releases/tag/v0.1.1</link>
+      <pubDate>Tue, 25 Aug 2026 06:37:32 +1000</pubDate>
+      <sparkle:version>2</sparkle:version>
+      <sparkle:shortVersionString>0.1.1</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+      <enclosure url="https://github.com/vmlrodrigues/Bayleaf/releases/download/v0.1.1/Bayleaf-0.1.1.dmg" type="application/octet-stream" length="2355356" sparkle:edSignature="8EkJWfmV7GLnjFe36rRD62nEqfRY8OUHuaVFRpDxEsiSgbzs0es+7rEw0nvn3rIdmh3vOYPJjVztf82eHbqmBQ==" />
+    </item>
+  </channel>
+</rss>
