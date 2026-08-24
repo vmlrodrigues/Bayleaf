@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- The hardened runtime (required for notarisation) blocks microphone capture
+	     unless the app carries this entitlement. Dictation is the only device access
+	     Bayleaf has; there is deliberately no network entitlement to add — every
+	     feature, the AI included, runs on this Mac. -->
+	<key>com.apple.security.device.audio-input</key>
+	<true/>
+</dict>
+</plist>
