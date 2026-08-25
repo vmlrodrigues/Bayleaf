@@ -196,6 +196,16 @@ renumbering as it goes. Content streams are never decoded. Notes:
   document back in. Pruned references are written as `null`, as pdfcpu does.
   Inherited `/Resources`, `/MediaBox`, `/CropBox` and `/Rotate` are resolved and
   written explicitly onto each page, since the tree node they came from is gone.
+- **Metadata.** The source's `/Title`, `/Author`, `/Subject`, `/Keywords`,
+  `/Creator` and `/CreationDate` are carried into the extract — they describe the
+  content, and the extracted pages are still that content, so an extract still shows
+  the book's title in Finder and Spotlight. `/Producer` is replaced with
+  `Bayleaf <version>`, since that key names whatever wrote *this* file. No `/ModDate`
+  is written: a wall-clock stamp would make two runs of the same extraction differ,
+  and reproducible output is worth more than a timestamp nothing reads. `/ID` is
+  omitted too — copying the source's would have two different files claim one
+  identity. (pdfcpu, for reference, discards Title and Author here and keeps only its
+  own Producer plus timestamps.)
 - **Encrypted documents are refused** (`TrimError.encrypted`) and fall back to
   PDFKit, which does its own decryption. Verbatim copying of ciphered streams would
   produce garbage.

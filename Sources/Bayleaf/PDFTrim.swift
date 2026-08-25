@@ -608,7 +608,21 @@ enum PDFTrim {
             // it is still in the file, but nothing can look it up. That cost a day —
             // the casualty was a font's ToUnicode map, so the pages rendered perfectly
             // while their text came out as mojibake.
-            let size = order.count + 3
+            // What the source says about itself — title, author and so on — is about
+            // the CONTENT, and the extracted pages are still that content, so it comes
+            // across. /Producer is the exception: it names the application that wrote
+            // *this* file, which is Bayleaf.
+            //
+            // (The reference CLI discards Title and Author here and keeps only its own
+            // Producer and a pair of timestamps. Carrying them over is more useful: an
+            // extract then still shows the book's title in Finder and Spotlight.)
+            //
+            // No /ModDate, deliberately: a wall-clock stamp would make two runs of the
+            // same extraction differ, and reproducible output is worth more than a
+            // timestamp nothing reads.
+            let info = descriptiveInfo()
+            let infoNum = order.count + 3
+            let size = order.count + (info.isEmpty ? 3 : 4)
 
             func emit(_ num: Int, _ body: [UInt8]) {
                 offsets[num] = out.count
@@ -646,6 +660,8 @@ enum PDFTrim {
                 }
             }
 
+            if !info.isEmpty { emit(infoNum, renderDict(info)) }
+
             // Classic cross-reference table. Object streams would shave a few percent
             // off, but a plain table is readable by everything and this file is already
             // as small as its own content allows.
@@ -656,8 +672,29 @@ enum PDFTrim {
                 let off = offsets[num] ?? 0
                 out += [UInt8](String(format: "%010d 00000 n \n", off).utf8)
             }
-            out += [UInt8]("trailer\n<< /Size \(size) /Root 1 0 R >>\nstartxref\n\(xrefOffset)\n%%EOF\n".utf8)
+            let infoRef = info.isEmpty ? "" : " /Info \(infoNum) 0 R"
+            out += [UInt8]("trailer\n<< /Size \(size) /Root 1 0 R\(infoRef) >>\nstartxref\n\(xrefOffset)\n%%EOF\n".utf8)
             return out
+        }
+
+        /// The source's descriptive metadata, plus our own /Producer.
+        ///
+        /// Values are re-emitted exactly as they were parsed — literal strings keep
+        /// their original escaping and hex strings stay hex — so text in any encoding
+        /// survives without being interpreted.
+        private func descriptiveInfo() -> [String: Obj] {
+            var info = [String: Obj]()
+            if let source = doc.dict(doc.trailer["Info"]) {
+                for key in ["Title", "Author", "Subject", "Keywords", "Creator", "CreationDate"] {
+                    guard let value = doc.resolve(source[key]) else { continue }
+                    // Skip empty strings rather than writing /Title ().
+                    if case .string(let bytes, _) = value, bytes.isEmpty { continue }
+                    info[key] = value
+                }
+            }
+            let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+            info["Producer"] = .string(Array(("Bayleaf" + (version.map { " " + $0 } ?? "")).utf8), hex: false)
+            return info
         }
 
         /// Serializes an object. Stream payloads are copied straight out of the source
