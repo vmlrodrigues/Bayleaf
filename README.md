@@ -18,7 +18,8 @@ or extract ever leaves the machine.
 
 Drop a PDF on the window, pick pages any way you like, and Bayleaf writes a new PDF
 with just those pages — a sensible filename already suggested, never overwriting
-anything. Signed with a Developer ID, notarised by Apple, and it keeps itself up to date via Sparkle.
+anything. Extracted pages are copied byte for byte, so the output stays small and its
+text stays selectable and searchable, even for scanned books. Signed with a Developer ID, notarised by Apple, and it keeps itself up to date via Sparkle.
 
 ## Three ways to pick pages
 

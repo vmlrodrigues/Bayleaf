@@ -230,7 +230,8 @@ final class AppModel: ObservableObject {
         let dir = destination ?? sourceURL.deletingLastPathComponent()
         let url = uniqueURL(in: dir, name: name)
         do {
-            try Extractor.extract(from: document, pages: selection.sorted(), to: url)
+            try Extractor.extract(from: document, sourceURL: sourceURL,
+                                  pages: selection.sorted(), to: url)
             showToast(.success, "Saved \(url.lastPathComponent)", revealURL: url)
         } catch {
             showToast(.failure, error.localizedDescription)

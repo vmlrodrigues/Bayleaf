@@ -10,6 +10,7 @@ enum CLI {
       Bayleaf --probe-ai                         report Apple Intelligence availability
       Bayleaf --interpret "<utterance>" <pages>  turn plain English into a page selection
       Bayleaf --extract <src.pdf> <sel> <dst>    extract pages (grammar: 1-3,5,l …)
+      Bayleaf --verify <src.pdf> [sel]           extract, then check size + text survived
       Bayleaf --snapshot <src.pdf> <outdir>      render UI states to PNGs
     """
 
@@ -56,9 +57,56 @@ enum CLI {
             }
             do {
                 let pages = try PageGrammar.parse(sel, pageCount: doc.pageCount)
-                try Extractor.extract(from: doc, pages: pages, to: URL(fileURLWithPath: dst))
-                print("wrote \(src) (pages \(PageGrammar.format(Set(pages)))) -> \(dst)")
+                let route = try Extractor.extract(from: doc, sourceURL: URL(fileURLWithPath: src),
+                                                  pages: pages, to: URL(fileURLWithPath: dst))
+                print("wrote \(src) (pages \(PageGrammar.format(Set(pages)))) -> \(dst)  [\(route.rawValue)]")
                 exit(0)
+            } catch { fail(error.localizedDescription) }
+
+        // Extract, then measure the result against the source: size per page and
+        // whether the text survived. This is the check that would have caught the
+        // Type 3 outlining bug, so it stays in the binary.
+        case "--verify" where args.count >= 3:
+            let src = args[1]
+            let sel = args.count >= 3 ? args[2] : "1-"
+            guard let doc = PDFDocument(url: URL(fileURLWithPath: src)) else {
+                fail("cannot read \(src) as a PDF")
+            }
+            do {
+                let pages = try PageGrammar.parse(sel, pageCount: doc.pageCount)
+                let tmp = URL(fileURLWithPath: NSTemporaryDirectory())
+                    .appendingPathComponent("bayleaf-verify-\(UUID().uuidString).pdf")
+                defer { try? FileManager.default.removeItem(at: tmp) }
+                let route = try Extractor.extract(from: doc, sourceURL: URL(fileURLWithPath: src),
+                                                  pages: pages, to: tmp)
+
+                func stats(_ url: URL, _ limit: [Int]?) -> (bytes: Int, pages: Int, words: Int) {
+                    let size = (try? FileManager.default
+                        .attributesOfItem(atPath: url.path)[.size] as? Int) ?? 0
+                    guard let d = PDFDocument(url: url) else { return (size ?? 0, 0, 0) }
+                    let idx = limit.map { $0.map { $0 - 1 } } ?? Array(0..<d.pageCount)
+                    let text = idx.compactMap { d.page(at: $0)?.string }.joined()
+                    return (size ?? 0, d.pageCount, text.split(whereSeparator: { $0.isWhitespace }).count)
+                }
+
+                let before = stats(URL(fileURLWithPath: src), pages)
+                let after = stats(tmp, nil)
+                let srcTotal = (try? FileManager.default
+                    .attributesOfItem(atPath: src)[.size] as? Int) ?? 0
+                let perPageSource = Double(srcTotal ?? 0) / Double(max(doc.pageCount, 1))
+                let perPageOut = Double(after.bytes) / Double(max(after.pages, 1))
+
+                print("source:    \(doc.pageCount) pages, \(srcTotal ?? 0) bytes " +
+                      "(\(Int(perPageSource)) B/page)")
+                print("extracted: \(after.pages) pages, \(after.bytes) bytes " +
+                      "(\(Int(perPageOut)) B/page) via \(route.rawValue)")
+                print("bloat:     \(String(format: "%.2f", perPageOut / max(perPageSource, 1)))x per page")
+                print("words:     \(before.words) in source pages -> \(after.words) in extract")
+                let textKept = before.words == 0 || Double(after.words) / Double(before.words) > 0.95
+                let sizeOK = perPageOut / max(perPageSource, 1) < 3.0
+                print(textKept ? "TEXT: preserved" : "TEXT: LOST")
+                print(sizeOK ? "SIZE: proportionate" : "SIZE: BLOATED")
+                exit(textKept && sizeOK ? 0 : 1)
             } catch { fail(error.localizedDescription) }
 
         case "--snapshot" where args.count >= 3:

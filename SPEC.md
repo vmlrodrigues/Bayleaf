@@ -127,6 +127,58 @@ folder picker to change; auto-unique on collision.
   (CFBundleDocumentTypes, rank Alternate — never steals Preview's default).
 - Deliberate: dark-only visual identity for the prototype (`preferredColorScheme(.dark)`).
 
+## Extraction: why PDFKit cannot write the file
+
+**Quartz's PDF writer re-renders pages; it does not copy them.** When a page uses
+Type 3 fonts — glyphs defined as little content streams, which is what scanner and
+OCR pipelines emit — it cannot re-embed them, so it inlines every glyph's outline
+into the page. Measured on a real 2,152-page scanned law textbook (12.7 MB, 213
+Type 3 fonts), extracting pages 450–520:
+
+| route | size | text |
+|---|---|---|
+| source, those 71 pages' share | ~430 KB | 27,251 words |
+| PDFKit copy pages into a new document | **30.8 MB** | **0 words** |
+| PDFKit remove-the-other-pages | 30.9 MB | 0 words |
+| `CGContext.drawPDFPage` | 30.8 MB | 0 words |
+| pdfcpu (the CLI this app replaces) | 436 KB | 27,251 words |
+| **PDFTrim (what Bayleaf does now)** | **504 KB** | **27,251 words** |
+
+All three Apple routes produce identical damage — 22,229 Bézier curves and zero text
+operators per page — so this is the Quartz writer, not one API's quirk. Losing the
+text is the serious half: a law student cannot search or quote her own extract.
+
+`PDFTrim.swift` therefore does what pdfcpu does: parse the file, walk the object
+graph from the selected pages, and copy every object it reaches **byte for byte**,
+renumbering as it goes. Content streams are never decoded. Notes:
+
+- **The object table is rebuilt by scanning, not read from the xref.** Broken, stale
+  and hybrid cross-reference tables are common in exactly the scanned files this is
+  for. The scan steps over stream payloads, so binary data shaped like `12 0 obj`
+  cannot shadow a real object, and later definitions win — which is what an
+  incremental update means. Objects inside `/ObjStm` containers are inflated out and
+  written as ordinary objects; they inherit the container's offset for precedence.
+- **Pruning.** Page, Pages and Catalog references are not followed — a link
+  annotation pointing at a page that wasn't extracted would otherwise drag the whole
+  document back in. Pruned references are written as `null`, as pdfcpu does.
+  Inherited `/Resources`, `/MediaBox`, `/CropBox` and `/Rotate` are resolved and
+  written explicitly onto each page, since the tree node they came from is gone.
+- **Encrypted documents are refused** (`TrimError.encrypted`) and fall back to
+  PDFKit, which does its own decryption. Verbatim copying of ciphered streams would
+  produce garbage.
+
+Three bugs this cost, all now regression-covered by `--verify`:
+
+1. **xref off-by-one.** `/Size` and the table length were the highest object number
+   rather than that plus one, so the *last* object was in the file but unreachable.
+   It happened to be a font's ToUnicode map: pages rendered perfectly while their
+   text came out as mojibake. Renders are not evidence that a PDF is correct.
+2. **Nondeterminism.** Container precedence and dictionary emission both came from
+   unordered Swift dictionaries, so the same input produced different bytes each run.
+   Everything order-sensitive is now sorted; five consecutive runs are byte-identical.
+3. **Stream truncation.** The EOL before `endstream` was trimmed even when `/Length`
+   was authoritative, corrupting any stream whose data happened to end in 0x0A.
+
 ## Architecture
 
 SPM executable (no .xcodeproj), ClawBar's mold: `Scripts/build.sh` assembles and
@@ -135,10 +187,11 @@ signs the bundle; `swift build` does the compiling.
 ```
 Sources/Bayleaf/
   Main.swift          @main; routes --flags to CLI, else launches the app
+  PDFTrim.swift       verbatim object-graph extraction (parser, scanner, writer)
   CLI.swift           headless: --probe-ai / --interpret / --interpret-basic /
                       --extract / --snapshot
   PageGrammar.swift   parse/format, pure
-  Extractor.swift     PDFKit copy-into-new-document
+  Extractor.swift     PDFTrim first, PDFKit fallback for encrypted/unparseable
   Interpreter.swift   3-tier NL → pages (FoundationModels + fallbacks)
   Dictation.swift     SFSpeechRecognizer push-to-talk
   AppModel.swift      @MainActor ObservableObject singleton; all state
