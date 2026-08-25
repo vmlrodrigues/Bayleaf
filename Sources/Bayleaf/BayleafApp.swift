@@ -28,6 +28,11 @@ struct BayleafApp: App {
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
             }
         }
+        // macOS 26 wraps every toolbar item in a Liquid Glass capsule, sized for a
+        // standard control — a custom icon+label stack spills out of it. The brand is
+        // a label, not a control, so it gets no background at all, which is what Mud's
+        // title does too. The buttons below keep theirs, because they ARE controls.
+        .sharedBackgroundVisibility(.hidden)
         // With the window title hidden there is no flexible gap in the middle of
         // the toolbar, so .primaryAction items sit next to the brand instead of at
         // the trailing edge. An explicit flexible spacer restores the split.
