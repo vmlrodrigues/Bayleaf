@@ -3,6 +3,15 @@
   <channel>
     <title>ClawBar</title>
     <item>
+      <title>0.1.2</title>
+      <link>https://github.com/vmlrodrigues/Bayleaf/releases/tag/v0.1.2</link>
+      <pubDate>Tue, 25 Aug 2026 12:49:37 +1000</pubDate>
+      <sparkle:version>4</sparkle:version>
+      <sparkle:shortVersionString>0.1.2</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+      <enclosure url="https://github.com/vmlrodrigues/Bayleaf/releases/download/v0.1.2/Bayleaf-0.1.2.dmg" type="application/octet-stream" length="2657079" sparkle:edSignature="YWZi2E2JvCKg7ptFMId2Lq3FxfhU9tmO1J85gTGRIAq4hIqyf7FQqj1cVvF6TkkQ5ELLwV6S2tQ1ZQtx3LnqBg==" />
+    </item>
+    <item>
       <title>0.1.1</title>
       <link>https://github.com/vmlrodrigues/Bayleaf/releases/tag/v0.1.1</link>
       <pubDate>Tue, 25 Aug 2026 06:37:32 +1000</pubDate>
