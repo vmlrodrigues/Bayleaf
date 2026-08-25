@@ -122,7 +122,26 @@ folder picker to change; auto-unique on collision.
   button (⌘E).
 - **Toasts**: success with **Reveal** (selects the file in Finder), failure, info.
   Auto-dismiss 6s.
-- **Menu**: ⌘O open, ⌘E extract, ⇧⌘A select all pages, clear selection, Check for Updates.
+- **Menu**: ⌘O open, ⌘E extract, ⇧⌘A select all pages, clear selection, **⌘D dictate**,
+  Check for Updates.
+
+### Rebindable shortcuts without a settings screen
+
+Every shortcut is attached to a **menu item**, which is the whole mechanism: macOS
+lets anyone remap a menu command in System Settings → Keyboard → Keyboard Shortcuts →
+App Shortcuts, by typing the item's title. So the app ships sensible defaults and
+users can change them, and Bayleaf never builds — or maintains, or migrates — a
+preferences window.
+
+Two constraints this places on the code, both easy to break by accident:
+
+1. **Menu titles must be fixed strings.** The rebinding matches on the exact title,
+   so a command whose label toggles ("Start Dictation" / "Stop Dictation") only ever
+   honours a custom binding in one of its two states. Dictate is therefore always
+   "Dictate", and the mic button carries the visual state instead.
+2. **The action must live on the model, not in a view.** `Dictation` is owned by
+   `AppModel` rather than by `SidebarView` precisely so the menu command can reach
+   it; a `@StateObject` inside the sidebar is invisible to `.commands`.
 - **Toolbar**: a real unified `NSToolbar` (`.windowToolbarStyle(.unified(showsTitle:
   false))`), the same thing Mud does with `window.toolbarStyle = .unified`. Brand at
   the leading edge, Open and Extract as icon buttons at the trailing edge, separated

@@ -85,6 +85,15 @@ struct BayleafApp: App {
                 Button("Select All Pages") { AppModel.shared.selectAll() }
                     .keyboardShortcut("a", modifiers: [.command, .shift])
                 Button("Clear Selection") { AppModel.shared.selectNone() }
+                Divider()
+                // Dictation is a menu command purely so its shortcut is rebindable:
+                // macOS lets anyone remap a menu item in System Settings > Keyboard >
+                // Keyboard Shortcuts > App Shortcuts, matching on the item's exact
+                // title. That is a whole settings screen this app never has to build —
+                // and the reason this title must stay FIXED. If it toggled between
+                // "Start"/"Stop", a custom binding would only ever match one of them.
+                Button("Dictate") { AppModel.shared.toggleDictation() }
+                    .keyboardShortcut("d", modifiers: .command)
             }
         }
     }

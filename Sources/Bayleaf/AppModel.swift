@@ -9,6 +9,27 @@ final class AppModel: ObservableObject {
     // bar commands both need to reach the same state as the views.
     static let shared = AppModel()
 
+    /// Owned here rather than by the sidebar so the menu command can drive it too.
+    let dictation = Dictation()
+
+    private init() {
+        dictation.onFinal = { [weak self] text in
+            guard let self else { return }
+            self.askText = text
+            Task { await self.ask() }
+        }
+    }
+
+    /// Start or stop listening. Reached from the mic button and from the Dictate
+    /// menu item (⌘D), which is also what makes the shortcut user-rebindable.
+    func toggleDictation() {
+        guard document != nil else {
+            showToast(.info, "Open a PDF first, then ask for pages out loud.")
+            return
+        }
+        dictation.toggle()
+    }
+
     @Published private(set) var document: PDFDocument?
     @Published private(set) var sourceURL: URL?
     @Published private(set) var sourceSizeLabel = ""

@@ -23,7 +23,7 @@ private struct StaticField: View {
 
 struct SidebarView: View {
     @EnvironmentObject var model: AppModel
-    @StateObject private var dictation = Dictation()
+    @ObservedObject private var dictation = AppModel.shared.dictation
     @FocusState private var rangeFieldFocused: Bool
 
     var body: some View {
@@ -38,12 +38,7 @@ struct SidebarView: View {
         }
         .frame(width: 336)
         .background(Color.black.opacity(0.25))
-        .onAppear {
-            dictation.onFinal = { text in
-                model.askText = text
-                Task { await model.ask() }
-            }
-        }
+
     }
 
     @ViewBuilder
@@ -144,7 +139,7 @@ struct SidebarView: View {
                         .disabled(dictation.isRecording)
                 }
 
-                Button { dictation.toggle() } label: {
+                Button { model.toggleDictation() } label: {
                     Image(systemName: dictation.isRecording ? "stop.circle.fill" : "mic.fill")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(dictation.isRecording ? AnyShapeStyle(Color.red) : AnyShapeStyle(Theme.accentGradient))
@@ -155,7 +150,9 @@ struct SidebarView: View {
                             lineWidth: dictation.isRecording ? 2 : 1))
                 }
                 .buttonStyle(.plain)
-                .help(dictation.isRecording ? "Stop and use what you said" : "Ask with your voice")
+                .help(dictation.isRecording
+                      ? "Stop and use what you said  (⌘D)"
+                      : "Ask with your voice  (⌘D)")
             }
 
             if dictation.isRecording {

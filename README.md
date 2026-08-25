@@ -29,6 +29,14 @@ text stays selectable and searchable, even for scanned books. Signed with a Deve
   cover"* — or press the mic and say it. Interpreted on-device; with Apple
   Intelligence switched off, simple phrasings still work.
 
+## Shortcuts
+
+`⌘O` open · `⌘E` extract · `⇧⌘A` select every page · `⌘D` dictate
+
+To change any of them, use macOS itself — System Settings → Keyboard → Keyboard
+Shortcuts → App Shortcuts → **+**, pick Bayleaf, type the menu item's exact name
+(e.g. `Dictate`) and press the keys you want. No settings screen required.
+
 ## Requirements
 
 macOS 26 (Tahoe) or later on Apple Silicon. First use of the mic asks for
