@@ -123,6 +123,20 @@ folder picker to change; auto-unique on collision.
 - **Toasts**: success with **Reveal** (selects the file in Finder), failure, info.
   Auto-dismiss 6s.
 - **Menu**: ⌘O open, ⌘E extract, ⇧⌘A select all pages, clear selection, Check for Updates.
+- **Toolbar**: a real unified `NSToolbar` (`.windowToolbarStyle(.unified(showsTitle:
+  false))`), the same thing Mud does with `window.toolbarStyle = .unified`. Brand at
+  the leading edge, Open and Extract as icon buttons at the trailing edge, separated
+  by a `ToolbarSpacer(.flexible)` — without that spacer, `.primaryAction` items sit
+  next to the brand instead of at the trailing edge, because hiding the title removes
+  the flexible gap the toolbar would otherwise split on.
+
+  This replaced a hand-rolled header row, twice. The first attempt just trimmed the
+  header's padding, which missed the point: under `.hiddenTitleBar` the window still
+  reserves the traffic-light strip as safe area, so *any* content row lands beneath
+  it and the chrome is two rows tall (~53pt measured) no matter how tight the
+  padding. A toolbar puts the brand on the same row as the traffic lights — one row,
+  ~34pt, measured identical to Mud's in the same screen region. Do not reintroduce a
+  header view in the content area.
 - Drag & drop accepts a PDF over any state. Finder "Open With → Bayleaf" works
   (CFBundleDocumentTypes, rank Alternate — never steals Preview's default).
 - Deliberate: dark-only visual identity for the prototype (`preferredColorScheme(.dark)`).

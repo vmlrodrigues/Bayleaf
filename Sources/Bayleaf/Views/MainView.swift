@@ -33,32 +33,10 @@ struct MainView: View {
     }
 
     private var loadedContent: some View {
-        VStack(spacing: 0) {
-            header
+        HStack(spacing: 0) {
+            PageGridView()
             Divider().overlay(Color.white.opacity(0.06))
-            HStack(spacing: 0) {
-                PageGridView()
-                Divider().overlay(Color.white.opacity(0.06))
-                SidebarView()
-            }
+            SidebarView()
         }
-    }
-
-    private var header: some View {
-        HStack(spacing: 8) {
-            LogoMark()
-            Text("Bayleaf")
-                .font(.system(.title3, design: .rounded).weight(.bold))
-            Spacer()
-            Text("tap a page · shift-click for a run · or just ask")
-                .font(.system(size: 11))
-                .foregroundStyle(Theme.dimText.opacity(0.8))
-        }
-        // Inline with the traffic lights (hidden title bar): the brand row shares
-        // their strip instead of stacking a second band beneath it.
-        .padding(.leading, 84)
-        .padding(.trailing, 20)
-        .padding(.top, 8)
-        .padding(.bottom, 8)
     }
 }

@@ -4,17 +4,8 @@ struct EmptyStateView: View {
     @EnvironmentObject var model: AppModel
 
     var body: some View {
+        // No brand row here: the window's toolbar carries the logo and name now.
         VStack(spacing: 0) {
-            HStack(spacing: 8) {
-                LogoMark()
-                Text("Bayleaf")
-                    .font(.system(.title3, design: .rounded).weight(.bold))
-                Spacer()
-            }
-            .padding(.leading, 84)
-            .padding(.trailing, 22)
-            .padding(.top, 8)
-
             Spacer()
 
             VStack(spacing: 18) {
